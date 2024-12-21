@@ -1,0 +1,33 @@
+[project]
+name = "pearapci"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{ name = "pearagon", email = "kds@pearagon.tv" }]
+dependencies = [
+  "typer[all]>=0.15.1",
+  "pylspci>=0.4.3",
+  "sh>=2.1.0",
+  "typing-extensions>=4.12.2",
+  "pyfzf>=0.3.1",
+  "rich>=13.9.4",
+  "thefuzz>=0.22.1",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[project.scripts]
+"pearapci" = "pearapci:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pearapci"]
