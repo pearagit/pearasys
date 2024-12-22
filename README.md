@@ -10,7 +10,8 @@
 pearapci \
   -d 10de:10f0 \
   driver vfio-pci remove-id \
-  device remove rescan
+  device remove \
+  rescan
 ```
 
 - Binding `nvidia` to a gpu and it's audio device:
