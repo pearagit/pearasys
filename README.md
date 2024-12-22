@@ -1,10 +1,30 @@
 # pearapci
 
-`pearapci` is a command-line tool for easily binding and unbinding PCIe device drivers by writing to sysfs, primarily for use with switching between using a gpu between `vfio-pci` and the OEM driver.
+`pearapci` is a command-line tool for easily binding and unbinding PCIe device drivers by writing to [sysfs](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci), primarily for use with switching between using a gpu between `vfio-pci` and an OEM driver.
+
+## Examples
+
+- Unbinding `vfio-pci` from a device:
+
+```sh
+pearapci \
+  -d 10de:10f0 \
+  driver vfio-pci remove-id \
+  device remove rescan
+```
+
+- Binding `nvidia` to a gpu and it's audio device:
+
+```sh
+pearapci \
+  -d 10de:10f0 -d 10de:1b80 \
+  driver vfio-pci unbind \
+  driver nvidia new-id
+```
 
 ## Usage
 
-```sh
+```plaintext
  Usage: pearapci [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
@@ -32,7 +52,7 @@
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<driver_name>`.
 
-```sh
+```plaintext
  Usage: pearapci driver [OPTIONS] driver_name COMMAND [ARGS]...
 
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
@@ -53,7 +73,7 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<slot>`. Currently, the only worthwhile file is `remove`. The other files/functions are left as an exercise to the reader.
 
-```sh
+```plaintext
  Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
@@ -63,8 +83,3 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<s
 │ remove                                                                    │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ```
-
-## Examples
-
-- Unbinding `vfio-pci` from a device: `pearapci -d 10de:10f0 driver vfio-pci remove-id device remove rescan`
-- Binding `nvidia` to a gpu and it's audio device: `pearapci -d 10de:10f0 -d 10de:1b80 driver vfio-pci unbind driver nvidia new-id`
