@@ -4,7 +4,7 @@
 
 ## Usage
 
-```
+```sh
  Usage: pearapci [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
@@ -23,8 +23,6 @@
 │ device                                                                    │
 │ driver                                                                    │
 ╰───────────────────────────────────────────────────────────────────────────╯
-
-
 ```
 
 - At least one device must be specified with `--slot` or `--pid` for use with the `device` and `driver` subcommands.
@@ -34,7 +32,7 @@
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<driver_name>`.
 
-```
+```sh
  Usage: pearapci driver [OPTIONS] driver_name COMMAND [ARGS]...
 
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
@@ -49,14 +47,13 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 │ new-id                                                                    │
 │ remove-id                                                                 │
 ╰───────────────────────────────────────────────────────────────────────────╯
-
 ```
 
 ### `pearapci device`
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<slot>`. Currently, the only worthwhile file is `remove`. The other files/functions are left as an exercise to the reader.
 
-```
+```sh
  Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
@@ -65,8 +62,6 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<s
 ╭─ Commands ────────────────────────────────────────────────────────────────╮
 │ remove                                                                    │
 ╰───────────────────────────────────────────────────────────────────────────╯
-
-
 ```
 
 ## Examples
