@@ -50,7 +50,7 @@ pearapci \
 ```
 
 - At least one device must be specified with `--slot` or `--pid` for use with the `device` and `driver` subcommands.
-- It is assumed that the files and directories under the /sys hierarchy are owned by `root:root`, so **[running as root is required](https://github.com/pearagit/pearapci/blob/master/src/pearapci/__init__.py#L78).
+- It is assumed that the files and directories under the /sys hierarchy are owned by `root:root`, so **[running as root is required](https://github.com/pearagit/pearapci/blob/master/src/pearapci/__init__.py#L78)**.
 
 ### `pearapci driver`
 
