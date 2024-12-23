@@ -3,7 +3,7 @@ from typing import Annotated
 import typer
 
 from pearapci.state import PearaPCIState
-from pearapci.utils import write_attr, device_id, err_log
+from pearapci.utils import write_attr, device_id
 
 app = typer.Typer()
 
@@ -27,9 +27,7 @@ def callback(
 ):
     state: PearaPCIState = ctx.obj
     state.driver = driver
-    if len(state.devices) == 0:
-        err_log.print("[bold red]Error:[/bold red] No devices provided.")
-        raise typer.Exit(1)
+    state.validate()
 
 
 @app.command()
