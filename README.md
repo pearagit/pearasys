@@ -6,6 +6,15 @@
 
 ## Examples
 
+- Binding `nvidia` to a gpu and it's audio device:
+
+```sh
+pearapci \
+  -d 10de:10f0 -d 10de:1b80 \
+  driver vfio-pci unbind \
+  driver nvidia new-id
+```
+
 - Unbinding `vfio-pci` from a device:
 
 ```sh
@@ -15,15 +24,7 @@ pearapci \
   device remove \
   rescan
 ```
-
-- Binding `nvidia` to a gpu and it's audio device:
-
-```sh
-pearapci \
-  -d 10de:10f0 -d 10de:1b80 \
-  driver vfio-pci unbind \
-  driver nvidia new-id
-```
+**Note**: Attempting to unbind a driver from a device in use will result in a hung process. In the event this occurs, check to see if your display manager, `nvidia-persistenced`, or another process is running on your GPU.
 
 ## Usage
 
@@ -49,7 +50,7 @@ pearapci \
 ```
 
 - At least one device must be specified with `--slot` or `--pid` for use with the `device` and `driver` subcommands.
-- Root privileges required
+- It is assumed that the files and directories under the /sys hierarchy are owned by `root:root`, so **[running as root is required](https://github.com/pearagit/pearapci/blob/master/src/pearapci/__init__.py#L78).
 
 ### `pearapci driver`
 
