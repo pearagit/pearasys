@@ -64,13 +64,16 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 │ *    driver      driver_name  [required]                                  │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                               │
+│ --slot  -s      slot  <domain>:<bus>:<device>.<func>                      │
+│ --pid   -d      pid   <vendor>:<device>                                   │
+│ --help                Show this message and exit.                         │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ────────────────────────────────────────────────────────────────╮
 │ bind                                                                      │
 │ unbind                                                                    │
 │ new-id                                                                    │
 │ remove-id                                                                 │
+│ ls                                                                        │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -82,9 +85,13 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<s
  Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                               │
+│ --slot  -s      slot  <domain>:<bus>:<device>.<func>                      │
+│ --pid   -d      pid   <vendor>:<device>                                   │
+│ --help                Show this message and exit.                         │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ────────────────────────────────────────────────────────────────╮
-│ remove                                                                    │
+│ remove            remove device from kernel's list                        │
+│ driver-override   overrides the driver for a device                       │
+│ driver            Prints the device's driver.                             │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ```
