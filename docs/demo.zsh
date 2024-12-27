@@ -13,7 +13,7 @@ function type_string() {
   done
 }
 
-sleep 2
+sleep 5
 type_string "GPU=$GPU"; echo
 type_string "AUD=$AUD"; echo
 type_string 'lspci -nnk -d $GPU; lspci -nnk -d $AUD'; echo
@@ -53,30 +53,5 @@ echo 'lspci -nnk -d $GPU; lspci -nnk -d $AUD'
 sleep 0.5
 type_string "# Driver overriding, dynamic ID matching, and other sysfs-bus-pci and sysfs-pci resources are available."; echo
 type_string "# See pearapci --help for more information."; echo
-sleep 3
+sleep 2
 echo "exit"
-# sleep 1
-# echo -e 'sudo pearapci -v driver vfio-pci remove-id device remove rescan'
-# sleep 1
-# echo -e 'G'
-# sleep 0.1
-# echo -e 'P'
-# sleep 0.1
-# echo -e '1'
-# sleep 0.1
-# echo -e '0'
-# sleep 0.1
-# echo -e '4'
-# sleep 1
-# echo -en $'\e'"[A"
-# sleep 0.3
-# echo -e '\t'
-# sleep 0.3
-# echo -e '\t'
-# sleep 0.5
-# echo -e '\r'
-# sleep 0.5
-# echo -e 'lspci -nnk -d 10de:10f0; lspci -nnk -d 10de:1b80'
-# sleep 2
-# echo -e 'sudo pearapci driver'
-# echo 'exit'

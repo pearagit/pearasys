@@ -52,7 +52,6 @@ def callback(
         ),
     ] = None,
 ):
-    print(ctx.invoked_subcommand)
     global state
     state = ctx.obj
     devices = (slots or []) + (pids or [])
