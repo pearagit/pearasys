@@ -1,6 +1,6 @@
 # pearapci
 
-![](demo.gif)
+![](docs/demo.gif)
 
 `pearapci` is a command-line tool for easily binding and unbinding PCIe device drivers by writing to [sysfs](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci), primarily for use with switching a gpu between `vfio-pci` and an OEM driver.
 
@@ -24,6 +24,7 @@ pearapci \
   device remove \
   rescan
 ```
+
 **Note**: Attempting to unbind a driver from a device in use will result in a hung process. In the event this occurs, check to see if your display manager, `nvidia-persistenced`, or another process is running on your GPU.
 
 ## Usage
