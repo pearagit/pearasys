@@ -1,49 +1,20 @@
 from typing import Annotated, Callable, Dict, List, Optional
-import re
 import os
-import click
 
 import typer
 from pylspci.device import Device
 from rich import print
 
-from pearapci.utils import get_device, write_attr
+from pearapci.utils import write_attr
 from pearapci.device import app as device_app
 from pearapci.driver import app as driver_app
 from pearapci.state import PearaPCIState
+from pearapci.parser import DeviceParser
 
 
 app = typer.Typer()
 app.add_typer(device_app, name="device")
 app.add_typer(driver_app, name="driver")
-
-
-def parse_pid(pid: str):
-    match = re.match(r"([0-9a-fA-F]{4}):([0-9a-fA-F]{4})", pid)
-    if not match:
-        raise typer.BadParameter("PID must be in the format vvvv:dddd")
-    device = get_device(device=pid)
-    if device is None:
-        raise typer.BadParameter(f"No device with pid: {pid}")
-    return device
-
-
-def parse_slot(slot: str):
-    match = re.match(r"\b([0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}.\d{1})", slot)
-    if not match:
-        raise typer.BadParameter("Slot must be in the format dddd:dd:d.d")
-    device = get_device(slot=slot)
-    if device is None:
-        raise typer.BadParameter(f"No devices with slot: {slot}")
-    return device
-
-
-class DeviceParser(click.ParamType):
-    name = "CustomClass"
-    parsers: Dict[str, Callable[[str], str]] = {"slots": parse_slot, "pids": parse_pid}
-
-    def convert(self, value, param, ctx):
-        return self.parsers[param.name](value)
 
 
 @app.callback(chain=True)
@@ -75,13 +46,7 @@ def callback(
         ),
     ] = None,
 ):
-    if os.geteuid() != 0:
-        print("[bold red]Error:[/bold red] root permissions required.")
-        raise typer.Exit(1)
-    slots = slots or []
-    pids = pids or []
-    state = PearaPCIState(verbose, slots + pids)
-
+    state = PearaPCIState(verbose, (slots or []) + (pids or []))
     ctx.obj = state
 
 

@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import List
 from pylspci.device import Device
 import typer
+import os
+from rich import print
 
 from pearapci.utils import err_log, select_devices
 
@@ -17,6 +19,9 @@ class PearaPCIState:
         self.devices = (
             self.devices if len(self.devices) > 0 else select_devices(multi=True)
         )
+        if os.geteuid() != 0:
+            print("[bold red]Error:[/bold red] root permissions required.")
+            raise typer.Exit(1)
         if len(self.devices) == 0:
             err_log.print("[bold red]Error:[/bold red] No devices provided.")
             raise typer.Exit(1)

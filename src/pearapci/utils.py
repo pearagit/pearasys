@@ -5,6 +5,7 @@ from typing import Callable
 from pyfzf.pyfzf import FzfPrompt
 from pylspci.device import Device
 from pylspci.parsers.verbose import VerboseParser
+from rich import print
 from rich.console import Console
 
 err_log = Console(stderr=True)
