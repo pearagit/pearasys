@@ -82,7 +82,7 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<slot>`. Currently, the only worthwhile file is `remove`. The other files/functions are left as an exercise to the reader.
 
 ```plaintext
- Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
+Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
 │ --slot  -s      slot  <domain>:<bus>:<device>.<func>                      │
