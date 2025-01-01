@@ -51,7 +51,7 @@ def select_devices(
     multi: bool = False,
 ) -> list[Device]:
     if choices is None:
-        choices = {f"IOMMU Group {d.iommu_group}\t[{d.slot.__str__()}]:\t{d.device.__str__()}": [d] for d in lspci()}
+        choices = {f"IOMMU Group {d.iommu_group}\t[{str(d.slot)}]:\t{str(d.device.name)}": [d] for d in lspci()}
     chosen = FzfPrompt().prompt(choices.keys(), f"--tac --read0 {"--multi" if multi is True else ""} --prompt='{prompt}'", '\0')
     if multi is False:
         chosen = ["\n".join(chosen)]

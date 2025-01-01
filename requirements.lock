@@ -14,15 +14,25 @@ cached-property==2.0.1
     # via pylspci
 click==8.1.7
     # via typer
+jinja2==3.1.5
+    # via pearapci
+lxml==5.3.0
+    # via pystemd
 markdown-it-py==3.0.0
     # via rich
+markupsafe==3.0.2
+    # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
+psutil==6.1.1
+    # via pystemd
 pyfzf==0.3.1
     # via pearapci
 pygments==2.18.0
     # via rich
 pylspci==0.4.3
+    # via pearapci
+pystemd==0.13.2
     # via pearapci
 rapidfuzz==3.10.1
     # via thefuzz

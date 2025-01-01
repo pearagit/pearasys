@@ -1,24 +1,26 @@
 from pathlib import Path
-from typing import Annotated, List, Optional
+from typing import Annotated, Callable, List, Optional
 from pylspci.device import Device
 from dataclasses import asdict
 import typer
 import os
+from enum import Enum
 
 from pearapci.state import PearaPCIState
-from pearapci.utils import write_attr, device_id
+from pearapci.utils import write_attr, device_id, device_path
 from pearapci.parser import DeviceParser
 
-app = typer.Typer()
-state: PearaPCIState = None
+app = typer.Typer(
+    help="See: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci"
+)
+state: PearaPCIState = (None, None, False)
 
 
 def parse_driver(value: str):
     driver = Path(f"/sys/bus/pci/drivers/{value}")
     if not driver.exists():
-        raise typer.BadParameter(
-            f"Driver {value} is not present, try `sudo modprobe {value}`, or even `sudo modprobe -f {value}`"
-        )
+        if os.system(f"modprobe -f {value}") != 0:
+            raise typer.BadParameter(f"Error: Failed to add kernel module `{value}`.")
     return driver
 
 
@@ -63,45 +65,67 @@ def callback(
         state.validate()
 
 
-@app.command()
-def bind():
+@app.command(help="/sys/bus/pci/drivers/.../bind")
+def bind(driver=None, devices=None, verbose=None):
     global state
-    for device in state.devices:
-        write_attr(device.slot.__str__(), state.driver.joinpath("bind"), state.verbose)
+    devices = devices or state.devices
+    driver = driver or state.driver
+    verbose = verbose if verbose is not None else state.verbose
+    for device in devices:
+        write_attr(device.slot.__str__(), driver.joinpath("bind"), verbose)
 
 
-@app.command()
-def unbind():
+@app.command(help="/sys/bus/pci/drivers/.../unbind")
+def unbind(driver=None, devices=None, verbose=None):
     global state
-    for device in state.devices:
-        write_attr(
-            device.slot.__str__(), state.driver.joinpath("unbind"), state.verbose
-        )
+    devices = devices or state.devices
+    driver = driver or state.driver
+    verbose = verbose if verbose is not None else state.verbose
+    for device in devices:
+        write_attr(device.slot.__str__(), driver.joinpath("unbind"), verbose)
 
 
-@app.command()
-def new_id():
+@app.command(help="/sys/bus/pci/drivers/.../new_id")
+def new_id(driver=None, devices=None, verbose=None):
     global state
-    for device in state.devices:
-        write_attr(
-            device_id(device),
-            state.driver.joinpath("new_id"),
-            state.verbose,
-        )
-
-
-@app.command()
-def remove_id():
-    global state
-    for device in state.devices:
+    devices = devices or state.devices
+    driver = driver or state.driver
+    verbose = verbose if verbose is not None else state.verbose
+    for device in devices:
         write_attr(
             device_id(device),
-            state.driver.joinpath("remove_id"),
-            state.verbose,
+            driver.joinpath("new_id"),
+            verbose,
         )
 
 
-@app.command()
+@app.command(help="/sys/bus/pci/drivers/.../remove_id")
+def remove_id(driver=None, devices=None, verbose=None):
+    global state
+    devices = devices or state.devices
+    driver = driver or state.driver
+    verbose = verbose if verbose is not None else state.verbose
+    for device in devices:
+        write_attr(
+            device_id(device),
+            driver.joinpath("remove_id"),
+            verbose,
+        )
+
+
+@app.command(help="Lists the files in the driver directory.")
 def ls():
     global state
     os.system(f"ls -lah --color=always {state.driver}")
+
+
+class DriverCommand(str, Enum):
+    new_id = "new-id"
+    remove_id = "remove-id"
+    bind = "bind"
+    unbind = "unbind"
+
+    # for device in state.devices:
+    #     if device.driver is None:
+    #         continue
+    #     getattr(device.driver, command)(device)

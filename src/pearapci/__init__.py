@@ -4,17 +4,21 @@ import os
 import typer
 from pylspci.device import Device
 from rich import print
+import sys
 
 from pearapci.utils import write_attr
-from pearapci.device import app as device_app
-from pearapci.driver import app as driver_app
 from pearapci.state import PearaPCIState
 from pearapci.parser import DeviceParser
+
+from pearapci.device import app as device_app
+from pearapci.driver import app as driver_app
+from pearapci.service import app as service_app
 
 
 app = typer.Typer()
 app.add_typer(device_app, name="device")
 app.add_typer(driver_app, name="driver")
+app.add_typer(service_app, name="service")
 
 
 @app.callback(chain=True)
@@ -50,7 +54,7 @@ def callback(
     ctx.obj = state
 
 
-@app.command()
+@app.command(help="/sys/bus/pci/rescan")
 def rescan(ctx: typer.Context):
     state: PearaPCIState = ctx.obj
     write_attr(1, "/sys/bus/pci/rescan", state.verbose)

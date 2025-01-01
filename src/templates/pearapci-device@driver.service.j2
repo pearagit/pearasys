@@ -1,0 +1,14 @@
+[Unit]
+Description=Binds /sys/bus/pci/devices/%j to %i
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart={{ pearapci_path }} -s %j service %i start
+ExecStop={{ pearapci_path }} -s %j service %i stop
+
+[Install]
+WantedBy=multi-user.target
+DefaultInstance=vfio-pci
+
+# vim: ft=systemd

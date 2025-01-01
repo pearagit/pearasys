@@ -1,21 +1,39 @@
 from pathlib import Path
-from pearapci.driver import parse_driver
 import typer
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, Callable, List, Literal, Optional
 from pylspci.device import Device
 from dataclasses import asdict
 from rich import print
 
+from pearapci.driver import DriverCommand, parse_driver
 from pearapci.utils import write_attr, device_path
 from pearapci.state import PearaPCIState
 from pearapci.parser import DeviceParser
-from pearapci.driver import app as driver_app
 
-app = typer.Typer()
+
+app = typer.Typer(
+    help="See: https://www.kernel.org/doc/Documentation/filesystems/sysfs-pci.txt"
+)
 state: PearaPCIState = None
 
 
-@app.callback()
+def driver_command(
+    device: Device,
+    command: DriverCommand,
+    verbose: bool = False,
+):
+    driver = parse_driver(device.driver)
+    if driver is None:
+        print(
+            f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, no driver bound."
+        )
+        return
+    getattr(__import__("pearapci").driver, DriverCommand(command).value)(
+        driver, [device], verbose
+    )
+
+
+@app.callback(invoke_without_command=True)
 def callback(
     ctx: typer.Context,
     slots: Annotated[
@@ -40,6 +58,15 @@ def callback(
             show_default=False,
         ),
     ] = None,
+    cmd: Annotated[
+        DriverCommand,
+        typer.Option(
+            "--driver",
+            metavar="driver",
+            help="See pearapci driver --help",
+            show_default=False,
+        ),
+    ] = None,
 ):
     global state
     state = ctx.obj
@@ -48,6 +75,10 @@ def callback(
         state = PearaPCIState(**asdict(state))
         state.devices = devices
     state.validate()
+    if cmd is None:
+        return
+    for device in state.devices:
+        driver_command(device, cmd, state.verbose)
 
 
 @app.command(help="remove device from kernel's list")
@@ -63,7 +94,7 @@ def parse_driver_override(value: str) -> str:
     parse_driver(value).name
 
 
-@app.command(help="overrides the driver for a device")
+@app.command(help="/sys/bus/pci/devices/.../driver_override")
 def driver_override(
     driver: Annotated[
         str,
@@ -75,9 +106,3 @@ def driver_override(
         write_attr(
             driver, device_path(device).joinpath("driver_override"), state.verbose
         )
-
-
-@app.command(help="Prints the device's driver.")
-def driver():
-    for device in state.devices:
-        print(f"[yellow]{device.driver}[/yellow]")
