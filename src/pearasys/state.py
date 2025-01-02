@@ -6,18 +6,20 @@ import typer
 import os
 from rich import print
 
-from pearapci.utils import err_log, select_devices
+from pearasys.utils import err_log, select_devices
 
 
 @dataclass
-class PearaPCIState:
+class PearaSysState:
     verbose: bool = False
     devices: List[Device] = field(default_factory=List)
     driver: Path = None
 
-    def validate(self):
+    def validate(self, interactive: bool = True):
         self.devices = (
-            self.devices if len(self.devices) > 0 else select_devices(multi=True)
+            self.devices
+            if len(self.devices) > 0
+            else select_devices(multi=True) if interactive is True else []
         )
         if os.geteuid() != 0:
             print("[bold red]Error:[/bold red] root permissions required.")

@@ -1,5 +1,5 @@
 [project]
-name = "pearapci"
+name = "pearasys"
 version = "0.1.0"
 description = "Add your description here"
 authors = [{ name = "pearagon", email = "kds@pearagon.tv" }]
@@ -13,12 +13,13 @@ dependencies = [
     "thefuzz>=0.22.1",
     "pystemd>=0.13.2",
     "jinja2>=3.1.5",
+    "rich-click>=1.8.5",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
 
 [project.scripts]
-"pearapci" = "pearapci:app"
+"pearasys" = "pearasys:app"
 
 [build-system]
 requires = ["hatchling"]
@@ -32,4 +33,4 @@ dev-dependencies = []
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pearapci"]
+packages = ["src/pearasys"]

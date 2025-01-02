@@ -1,27 +1,21 @@
-from typing import Annotated, Callable, Dict, List, Optional
-import os
+from typing import Annotated, List, Optional
 
-import typer
+from pearasys.parser import DeviceParser
 from pylspci.device import Device
-from rich import print
-import sys
+import typer
 
-from pearapci.utils import write_attr
-from pearapci.state import PearaPCIState
-from pearapci.parser import DeviceParser
+from pearasys.state import PearaSysState
 
-from pearapci.device import app as device_app
-from pearapci.driver import app as driver_app
-from pearapci.service import app as service_app
+from pearasys.pci import app as pci_app
+from pearasys.service import app as service_app
 
 
-app = typer.Typer()
-app.add_typer(device_app, name="device")
-app.add_typer(driver_app, name="driver")
+app = typer.Typer(no_args_is_help=True)
+app.add_typer(pci_app, name="pci")
 app.add_typer(service_app, name="service")
 
 
-@app.callback(chain=True)
+@app.callback()
 def callback(
     ctx: typer.Context,
     verbose: Annotated[
@@ -50,11 +44,5 @@ def callback(
         ),
     ] = None,
 ):
-    state = PearaPCIState(verbose, (slots or []) + (pids or []))
+    state = PearaSysState(verbose, (slots or []) + (pids or []))
     ctx.obj = state
-
-
-@app.command(help="/sys/bus/pci/rescan")
-def rescan(ctx: typer.Context):
-    state: PearaPCIState = ctx.obj
-    write_attr(1, "/sys/bus/pci/rescan", state.verbose)

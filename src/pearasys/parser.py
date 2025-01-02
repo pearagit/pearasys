@@ -3,7 +3,7 @@ import click
 import typer
 from typing import Annotated, Callable, Dict, List, Optional
 
-from pearapci.utils import get_device
+from pearasys.utils import get_device
 
 PID_REGEX = r"([0-9a-fA-F]{4}):([0-9a-fA-F]{4})"
 SLOT_REGEX = r"\b([0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}.\d{1})"

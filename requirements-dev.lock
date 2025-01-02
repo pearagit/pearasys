@@ -13,9 +13,10 @@
 cached-property==2.0.1
     # via pylspci
 click==8.1.7
+    # via rich-click
     # via typer
 jinja2==3.1.5
-    # via pearapci
+    # via pearasys
 lxml==5.3.0
     # via pystemd
 markdown-it-py==3.0.0
@@ -27,26 +28,30 @@ mdurl==0.1.2
 psutil==6.1.1
     # via pystemd
 pyfzf==0.3.1
-    # via pearapci
+    # via pearasys
 pygments==2.18.0
     # via rich
 pylspci==0.4.3
-    # via pearapci
+    # via pearasys
 pystemd==0.13.2
-    # via pearapci
+    # via pearasys
 rapidfuzz==3.10.1
     # via thefuzz
 rich==13.9.4
-    # via pearapci
+    # via pearasys
+    # via rich-click
     # via typer
+rich-click==1.8.5
+    # via pearasys
 sh==2.1.0
-    # via pearapci
+    # via pearasys
 shellingham==1.5.4
     # via typer
 thefuzz==0.22.1
-    # via pearapci
+    # via pearasys
 typer==0.15.1
-    # via pearapci
+    # via pearasys
 typing-extensions==4.12.2
-    # via pearapci
+    # via pearasys
+    # via rich-click
     # via typer

@@ -1,11 +1,13 @@
 [Unit]
 Description=Binds /sys/bus/pci/devices/%j to %i
-
+{% for service in conflicts %}
+Conflicts={{service}}
+{% endfor %}
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart={{ pearapci_path }} -s %j service %i start
-ExecStop={{ pearapci_path }} -s %j service %i stop
+ExecStart={{ pearasys_bin }} -v -s %j driver %i bind
+ExecStop={{ pearasys_bin }} -v -s %j driver %i unbind
 
 [Install]
 WantedBy=multi-user.target

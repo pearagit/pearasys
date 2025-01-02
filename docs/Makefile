@@ -2,13 +2,13 @@
 GPU = 10de:1b80
 AUD = 10de:10f0
 LSPCI_OPTS = -nnk
-PEARAPCI_OPTS = -v
+PEARASYS_OPTS = -v
 DEVICES := $(GPU) $(AUD)
 $(foreach device,$(DEVICES), \
-    $(eval PEARAPCI_OPTS+= -d $(device)) \
+    $(eval PEARASYS_OPTS+= -d $(device)) \
 )
 # Asciinema Options
-TITLE = "[32m  pearapci demo  "
+TITLE = "[32m  pearasys demo  "
 COLS = 120
 ROWS = 24
 ASCIINEMA_OPTS :=\
@@ -30,7 +30,7 @@ AGG_OPTS :=\
 --theme $(THEME)
 
 clean:
-	sudo pearapci $(PEARAPCI_OPTS) device remove rescan
+	sudo pearasys $(PEARASYS_OPTS) device remove rescan
 	rm demo.cast
 	rm demo.gif
 

@@ -1,6 +1,8 @@
 from itertools import groupby
 from pathlib import Path
 from typing import Callable
+import os
+import typer
 
 from pyfzf.pyfzf import FzfPrompt
 from pylspci.device import Device
@@ -86,5 +88,8 @@ def write_attr(data: str, path: Path, verbose: bool = False):
     f.write(str(data))
     f.close()
 
-
+def is_sudo():
+    if os.geteuid() != 0:
+        print("[bold red]Error:[/bold red] root permissions required.")
+        raise typer.Exit(1)
 

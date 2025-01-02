@@ -6,14 +6,16 @@ import typer
 import os
 from enum import Enum
 
-from pearapci.state import PearaPCIState
-from pearapci.utils import write_attr, device_id, device_path
-from pearapci.parser import DeviceParser
+from pearasys.state import PearaSysState
+from pearasys.utils import write_attr, device_id, device_path
+from pearasys.parser import DeviceParser
 
 app = typer.Typer(
-    help="See: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci"
+    short_help="Access resources under /sys/bus/pci/drivers/",
+    help="See https://www.kernel.org/doc/Documentation/filesystems/sysfs-pci.txt",
 )
-state: PearaPCIState = (None, None, False)
+
+state: PearaSysState = (None, None, False)
 
 
 def parse_driver(value: str):
@@ -58,7 +60,7 @@ def callback(
     state = ctx.obj
     devices = (slots or []) + (pids or [])
     if len(devices) > 0:
-        state = PearaPCIState(**asdict(state))
+        state = PearaSysState(**asdict(state))
         state.devices = devices
     state.driver = driver
     if ctx.invoked_subcommand != "ls":

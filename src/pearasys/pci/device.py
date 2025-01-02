@@ -5,16 +5,17 @@ from pylspci.device import Device
 from dataclasses import asdict
 from rich import print
 
-from pearapci.driver import DriverCommand, parse_driver
-from pearapci.utils import write_attr, device_path
-from pearapci.state import PearaPCIState
-from pearapci.parser import DeviceParser
-
+from pearasys.pci.driver import DriverCommand, parse_driver
+from pearasys.utils import write_attr, device_path
+from pearasys.state import PearaSysState
+from pearasys.parser import DeviceParser
 
 app = typer.Typer(
-    help="See: https://www.kernel.org/doc/Documentation/filesystems/sysfs-pci.txt"
+    short_help="Access resources under /sys/bus/pci/devices/",
+    help="See https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci",
 )
-state: PearaPCIState = None
+
+state: PearaSysState = None
 
 
 def driver_command(
@@ -28,12 +29,12 @@ def driver_command(
             f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, no driver bound."
         )
         return
-    getattr(__import__("pearapci").driver, DriverCommand(command).value)(
+    getattr(__import__("pearasys").driver, DriverCommand(command).value)(
         driver, [device], verbose
     )
 
 
-@app.callback(invoke_without_command=True)
+@app.callback()
 def callback(
     ctx: typer.Context,
     slots: Annotated[
@@ -63,7 +64,7 @@ def callback(
         typer.Option(
             "--driver",
             metavar="driver",
-            help="See pearapci driver --help",
+            help="See pearasys pci driver --help",
             show_default=False,
         ),
     ] = None,
@@ -72,7 +73,7 @@ def callback(
     state = ctx.obj
     devices = (slots or []) + (pids or [])
     if len(devices) > 0:
-        state = PearaPCIState(**asdict(state))
+        state = PearaSysState(**asdict(state))
         state.devices = devices
     state.validate()
     if cmd is None:

@@ -1,15 +1,15 @@
-# pearapci
+# pearasys
 
 ![](docs/demo.gif)
 
-`pearapci` is a command-line tool for easily binding and unbinding PCIe device drivers by writing to [sysfs](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci), primarily for use with switching a gpu between `vfio-pci` and an OEM driver.
+`pearasys` is a command-line tool for easily binding and unbinding PCIe device drivers by writing to [sysfs](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci), primarily for use with switching a gpu between `vfio-pci` and an OEM driver.
 
 ## Examples
 
 - Binding `nvidia` to a gpu and it's audio device:
 
 ```sh
-pearapci \
+pearasys \
   -d 10de:10f0 -d 10de:1b80 \
   driver vfio-pci unbind \
   driver nvidia new-id
@@ -18,7 +18,7 @@ pearapci \
 - Unbinding `vfio-pci` from a device:
 
 ```sh
-pearapci \
+pearasys \
   -d 10de:10f0 \
   driver vfio-pci remove-id \
   device remove \
@@ -30,7 +30,7 @@ pearapci \
 ## Usage
 
 ```plaintext
- Usage: pearapci [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
+ Usage: pearasys [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
 │ --verbose             -v            Verbose output.                       │
@@ -51,14 +51,14 @@ pearapci \
 ```
 
 - At least one device must be specified with `--slot` or `--pid` for use with the `device` and `driver` subcommands.
-- It is assumed that the files and directories under the /sys hierarchy are owned by `root:root`, so **[running as root is required](https://github.com/pearagit/pearapci/blob/master/src/pearapci/state.py#L22)**.
+- It is assumed that the files and directories under the /sys hierarchy are owned by `root:root`, so **[running as root is required](https://github.com/pearagit/pearasys/blob/master/src/pearasys/state.py#L22)**.
 
-### `pearapci driver`
+### `pearasys driver`
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<driver_name>`.
 
 ```plaintext
- Usage: pearapci driver [OPTIONS] driver_name COMMAND [ARGS]...
+ Usage: pearasys driver [OPTIONS] driver_name COMMAND [ARGS]...
 
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
 │ *    driver      driver_name  [required]                                  │
@@ -77,12 +77,12 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 ╰───────────────────────────────────────────────────────────────────────────╯
 ```
 
-### `pearapci device`
+### `pearasys device`
 
 Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<slot>`. Currently, the only worthwhile file is `remove`. The other files/functions are left as an exercise to the reader.
 
 ```plaintext
-Usage: pearapci device [OPTIONS] COMMAND [ARGS]...
+Usage: pearasys device [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ─────────────────────────────────────────────────────────────────╮
 │ --slot  -s      slot  <domain>:<bus>:<device>.<func>                      │
