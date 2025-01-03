@@ -79,7 +79,7 @@ Commands for easily writing to the kernel objects under `/sys/bus/pci/drivers/<d
 
 ### `pearasys device`
 
-Commands for easily writing to the kernel objects under `/sys/bus/pci/devices/<slot>`. Currently, the only worthwhile file is `remove`. The other files/functions are left as an exercise to the reader.
+Commands for easily reading/writing to the kernel objects under `/sys/bus/pci/devices/<slot>`.
 
 ```plaintext
 Usage: pearasys device [OPTIONS] COMMAND [ARGS]...
