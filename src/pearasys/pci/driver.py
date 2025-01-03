@@ -5,6 +5,7 @@ from dataclasses import asdict
 import typer
 import os
 from enum import Enum
+from rich import print
 
 from pearasys.state import PearaSysState
 from pearasys.utils import write_attr, device_id, device_path
@@ -74,6 +75,11 @@ def bind(driver=None, devices=None, verbose=None):
     driver = driver or state.driver
     verbose = verbose if verbose is not None else state.verbose
     for device in devices:
+        if device.driver == driver.name:
+            print(
+                f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, current driver is {driver.name}"
+            )
+            continue
         write_attr(device.slot.__str__(), driver.joinpath("bind"), verbose)
 
 
@@ -84,6 +90,11 @@ def unbind(driver=None, devices=None, verbose=None):
     driver = driver or state.driver
     verbose = verbose if verbose is not None else state.verbose
     for device in devices:
+        if device.driver is None:
+            print(
+                f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, device is not bound."
+            )
+            continue
         write_attr(device.slot.__str__(), driver.joinpath("unbind"), verbose)
 
 
@@ -126,8 +137,3 @@ class DriverCommand(str, Enum):
     remove_id = "remove-id"
     bind = "bind"
     unbind = "unbind"
-
-    # for device in state.devices:
-    #     if device.driver is None:
-    #         continue
-    #     getattr(device.driver, command)(device)

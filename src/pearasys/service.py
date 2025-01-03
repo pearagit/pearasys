@@ -27,33 +27,23 @@ def load_service_unit(device: Device, driver: Path) -> Unit:
     return unit
 
 
-def get_device_unit_files(device: Device) -> List[Path]:
+def get_device_service_files(device: Device) -> List[Path]:
     manager.load()
-    units = list()
+    units = []
     for file, _ in manager.Manager.ListUnitFilesByPatterns(
         [], [f"pearasys-{str(device.slot)}@*".encode()]
     ):
-        units += Path(file.decode())
+        units += [Path(file.decode())]
     return units
-
-
-@app.callback()
-def callback(
-    ctx: typer.Context,
-    driver: Annotated[
-        Path,
-        typer.Argument(parser=parse_driver, metavar="driver_name", show_default=False),
-    ],
-):
-    state: PearaSysState = ctx.obj
-    # service commands can safely use the context state as commands are not chained
-    state.driver = driver
-    state.validate()
 
 
 @app.command()
 def install(
     ctx: typer.Context,
+    driver: Annotated[
+        str,
+        typer.Argument(metavar="driver_name", show_default=False),
+    ],
     prefix: Annotated[
         Optional[Path],
         typer.Option(
@@ -68,96 +58,14 @@ def install(
         raise typer.BadParameter(
             "Only one device can be specified for service installation."
         )
+
     device = state.devices[0]
-    text = template.render(pearasys_bin=sys.argv[0], conflicts=[])
-    print(prefix)
-    # print(get_device_unit_files(device))
-    # environment = Environment(
-    #     loader=FileSystemLoader(Path(__file__).parent.parent / "templates")
-    # )
-    # template = environment.get_template("pearasys-device@driver.service")
-    # units.append(
-    #     Path("/etc/systemd/system/")
-    #     / (f"pearasys-{str(device.slot)}@{state.driver.name}.service")
-    # )
-    # new_unit = f"pearasys-{str(device.slot)}@{state.driver.name}.service"
-    # service_file = (
-    #     Path("/etc/systemd/system/")
-    #     / f"pearasys-{str(device.slot)}@{state.driver.name}.service"
-    # )
-
-    # print(units)
-    # for unit_file in units:
-    #     conflicts = []
-    #     for conflict in units:
-    #         if conflict != unit_file:
-    #             conflicts.append(conflict)
-    #     content = template.render(pearasys_bin=sys.argv[0], conflicts=conflicts)
-    #     with open(unit_file, mode="w", encoding="utf-8") as file:
-    #         file.write(content)
-
-    # for device in state.devices:
-    #     environment = Environment(
-    #         loader=FileSystemLoader(Path(__file__).parent.parent / "templates")
-    #     )
-    #     template = environment.get_template("pearasys-device@driver.service")
-    #     path = (
-    #         Path("/etc/systemd/system/")
-    #         / f"pearasys-{str(device.slot)}@{state.driver.name}.service"
-    #     )
-    #     content = template.render(pearasys_bin=sys.argv[0])
-    #     with open(path, mode="w", encoding="utf-8") as file:
-    #         file.write(content)
-    # print(service_file)
-
-
-# @app.command()
-# def start(
-#     slot: Annotated[
-#         Device,
-#         typer.Argument(
-#             help="<domain>:<bus>:<device>.<func>",
-#             metavar="slot",
-#             click_type=DeviceParser(),
-#             show_default=False,
-#         ),
-#     ],
-#     driver: Annotated[
-#         Path,
-#         typer.Argument(parser=parse_driver, metavar="driver_name", show_default=False),
-#     ],
-# ):
-#     # bind(driver , [device], True)
-#     pass
-#     # for device in state.devices:
-#     #     if str(device.driver) == state.driver.name:
-#     #         continue
-#     #     lstate = PearaSysState(**asdict(state))
-#     #     lstate.devices = [device]
-#     #     bind(lstate)
-#
-#
-# @app.command()
-# def stop(
-#     ctx: typer.Context,
-#     slot: Annotated[
-#         Device,
-#         typer.Argument(
-#             help="<domain>:<bus>:<device>.<func>",
-#             metavar="slot",
-#             click_type=DeviceParser(),
-#             show_default=False,
-#         ),
-#     ],
-#     driver: Annotated[
-#         Path,
-#         typer.Argument(parser=parse_driver, metavar="driver_name", show_default=False),
-#     ],
-# ):
-#     state: PearaSysState = ctx.obj
-#     for device in state.devices:
-#         if device.driver is None:
-#             continue
-#         unbind(parse_driver(device.driver), [device])
-#
-#
+    device_unit_files = get_device_service_files(device)
+    new_unit_file = prefix / (f"pearasys-{str(device.slot)}@{driver}.service")
+    if new_unit_file not in device_unit_files:
+        device_unit_files += [new_unit_file]
+    for unit_file in device_unit_files:
+        conflicts = [u.name for u in device_unit_files if u != unit_file]
+        content = template.render(pearasys_bin=sys.argv[0], conflicts=conflicts)
+        with open(unit_file, mode="w", encoding="utf-8") as file:
+            file.write(content)
