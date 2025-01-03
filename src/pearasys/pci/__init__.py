@@ -9,7 +9,11 @@ from pearasys.parser import DeviceParser
 from pearasys.state import PearaSysState
 
 
-app = typer.Typer(no_args_is_help=True, chain=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    chain=True,
+    help="Access PCI related resources under /sys/bus/pci",
+)
 
 app.add_typer(device_app, name="device")
 app.add_typer(driver_app, name="driver")

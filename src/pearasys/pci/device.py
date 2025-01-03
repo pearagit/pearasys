@@ -63,7 +63,7 @@ def callback(
         DriverCommand,
         typer.Option(
             "--driver",
-            metavar="driver",
+            metavar="driver command",
             help="See pearasys pci driver --help",
             show_default=False,
         ),
