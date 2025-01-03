@@ -7,6 +7,8 @@ Type=oneshot
 RemainAfterExit=true
 ExecStart={{ pearasys_bin }} -v -s %j pci driver %i bind
 ExecStop={{ pearasys_bin }} -v -s %j pci driver %i unbind
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
