@@ -1,15 +1,15 @@
-from pathlib import Path
-from typing import Annotated, Callable, List, Optional
-from pylspci.device import Device
-from dataclasses import asdict
-import typer
 import os
-from enum import Enum
+from dataclasses import asdict
+from pathlib import Path
+from typing import Annotated, List, Optional
+
+import typer
+from pylspci.device import Device
 from rich import print
 
-from pearasys.state import PearaSysState
-from pearasys.utils import write_attr, device_id, device_path
 from pearasys.parser import DeviceParser
+from pearasys.state import PearaSysState
+from pearasys.utils import device_id, write_attr
 
 app = typer.Typer(
     short_help="Access resources under /sys/bus/pci/drivers/",
@@ -25,6 +25,40 @@ def parse_driver(value: str):
         if os.system(f"modprobe -f {value}") != 0:
             raise typer.BadParameter(f"Error: Failed to add kernel module `{value}`.")
     return driver
+
+
+def driver_bind(driver: Path, device: Device, verbose: bool = False):
+    if device.driver == driver.name:
+        print(
+            f"[yellow]Warning[/yellow]: Skipping device {str(device.slot)}, current driver is {driver.name}"
+        )
+        return
+    write_attr(str(device.slot), driver / "bind", verbose)
+
+
+def driver_unbind(driver: Path, device: Device, verbose: bool = False):
+    if device.driver is None:
+        print(
+            f"[yellow]Warning[/yellow]: Skipping device {str(device.slot)}, no driver bound."
+        )
+        return
+    write_attr(str(device.slot), driver / "unbind", verbose)
+
+
+def driver_new_id(driver: Path, device: Device, verbose: bool = False):
+    write_attr(
+        device_id(device),
+        driver / "new_id",
+        verbose,
+    )
+
+
+def driver_remove_id(driver: Path, device: Device, verbose: bool = False):
+    write_attr(
+        device_id(device),
+        driver / "remove_id",
+        verbose,
+    )
 
 
 @app.callback()
@@ -60,80 +94,37 @@ def callback(
     global state
     state = ctx.obj
     devices = (slots or []) + (pids or [])
+    # copy context state to local state if a callback param is present
     if len(devices) > 0:
         state = PearaSysState(**asdict(state))
         state.devices = devices
     state.driver = driver
-    if ctx.invoked_subcommand != "ls":
-        state.validate()
+    state.validate()
 
 
 @app.command(help="/sys/bus/pci/drivers/.../bind")
-def bind(driver=None, devices=None, verbose=None):
+def bind():
     global state
-    devices = devices or state.devices
-    driver = driver or state.driver
-    verbose = verbose if verbose is not None else state.verbose
-    for device in devices:
-        if device.driver == driver.name:
-            print(
-                f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, current driver is {driver.name}"
-            )
-            continue
-        write_attr(device.slot.__str__(), driver.joinpath("bind"), verbose)
+    for device in state.devices:
+        driver_bind(state.driver, device, state.verbose)
 
 
 @app.command(help="/sys/bus/pci/drivers/.../unbind")
-def unbind(driver=None, devices=None, verbose=None):
+def unbind():
     global state
-    devices = devices or state.devices
-    driver = driver or state.driver
-    verbose = verbose if verbose is not None else state.verbose
-    for device in devices:
-        if device.driver is None:
-            print(
-                f"[yellow]Warning[/yellow]: Skipping {str(device.slot)}, device is not bound."
-            )
-            continue
-        write_attr(device.slot.__str__(), driver.joinpath("unbind"), verbose)
+    for device in state.devices:
+        driver_unbind(state.driver, device, state.verbose)
 
 
 @app.command(help="/sys/bus/pci/drivers/.../new_id")
-def new_id(driver=None, devices=None, verbose=None):
+def new_id():
     global state
-    devices = devices or state.devices
-    driver = driver or state.driver
-    verbose = verbose if verbose is not None else state.verbose
-    for device in devices:
-        write_attr(
-            device_id(device),
-            driver.joinpath("new_id"),
-            verbose,
-        )
+    for device in state.devices:
+        driver_new_id(state.driver, device, state.verbose)
 
 
 @app.command(help="/sys/bus/pci/drivers/.../remove_id")
-def remove_id(driver=None, devices=None, verbose=None):
+def remove_id():
     global state
-    devices = devices or state.devices
-    driver = driver or state.driver
-    verbose = verbose if verbose is not None else state.verbose
-    for device in devices:
-        write_attr(
-            device_id(device),
-            driver.joinpath("remove_id"),
-            verbose,
-        )
-
-
-@app.command(help="Lists the files in the driver directory.")
-def ls():
-    global state
-    os.system(f"ls -lah --color=always {state.driver}")
-
-
-class DriverCommand(str, Enum):
-    new_id = "new-id"
-    remove_id = "remove-id"
-    bind = "bind"
-    unbind = "unbind"
+    for device in state.devices:
+        driver_remove_id(state.driver, device, state.verbose)

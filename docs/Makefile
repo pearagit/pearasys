@@ -30,16 +30,12 @@ AGG_OPTS :=\
 --theme $(THEME)
 
 clean:
-	rm demo.cast
-	rm demo.gif
+	rm -f demo.cast
+	rm -f demo.gif
+	rm -f USAGE.md
 
 reset:
 	sudo pearasys $(PEARASYS_OPTS) pci device remove rescan
-
-lspci:
-	@for device in $(DEVICES); do \
-		lspci $(LSPCI_OPTS) -d $$device; \
-	done
 
 demo.cast:
 	GPU=$(GPU) AUD=$(AUD) ./demo.zsh | ASCIINEMA_TITLE=$(TITLE) asciinema rec -i 2 $(ASCIINEMA_OPTS) $@
@@ -47,8 +43,12 @@ demo.cast:
 demo.gif: demo.cast
 	agg $(AGG_OPTS) $< $@
 
-
-all:
 demo: demo.cast demo.gif
 
-.PHONY: clean lspci demo all
+docs:
+USAGE.md:
+	typer pearasys utils docs --name pearasys --title "CLI Reference" --output USAGE.md
+
+all: docs demo
+
+.PHONY: clean demo docs all

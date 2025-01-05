@@ -1,8 +1,6 @@
 from itertools import groupby
 from pathlib import Path
 from typing import Callable
-import os
-import typer
 
 from pyfzf.pyfzf import FzfPrompt
 from pylspci.device import Device
@@ -66,7 +64,7 @@ def select_iommu_group() -> list[Device]:
 
     for iommu_group, devices in device_grouping.items():
         prefix = f"IOMMU Group {iommu_group}: "
-        key = f"{prefix}{f"\n{" " * len(prefix)}".join([d.device.__str__() for d in devices])}"
+        key = f"{prefix}{f"\n{" " * len(prefix)}".join([d.device.name for d in devices])}"
         choices[key] = devices
     return (select_devices(
         choices=choices,
@@ -79,7 +77,7 @@ def device_id(device: Device) -> str:
 
 
 def device_path(device: Device) -> Path:
-    return Path(f"/sys/bus/pci/devices/{device.slot.__str__()}")
+    return Path(f"/sys/bus/pci/devices/{str(device.slot)}")
 
 def write_attr(data: str, path: Path, verbose: bool = False):
     if verbose:
@@ -87,9 +85,3 @@ def write_attr(data: str, path: Path, verbose: bool = False):
     f = open(str(path), "a")
     f.write(str(data))
     f.close()
-
-def is_sudo():
-    if os.geteuid() != 0:
-        print("[bold red]Error:[/bold red] root permissions required.")
-        raise typer.Exit(1)
-

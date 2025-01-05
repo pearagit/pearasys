@@ -1,9 +1,10 @@
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
-from pylspci.device import Device
+
 import typer
-import os
+from pylspci.device import Device
 from rich import print
 
 from pearasys.utils import err_log, select_devices

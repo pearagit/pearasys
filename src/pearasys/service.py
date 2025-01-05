@@ -1,14 +1,14 @@
 import os
-from rich import print
-from rich.console import Console
-from rich.syntax import Syntax
+import sys
 from pathlib import Path
 from typing import Annotated, List, Optional
-from pylspci.device import Device
-from pystemd.systemd1 import Unit, Manager as SystemdManager
+
 import typer
 from jinja2 import Environment, PackageLoader
-import sys
+from pylspci.device import Device
+from pystemd.systemd1 import Manager as SystemdManager
+from pystemd.systemd1 import Unit
+from rich import print
 
 from pearasys.state import PearaSysState
 
@@ -17,10 +17,6 @@ app = typer.Typer(help="pearasys systemd service related commands.")
 manager = SystemdManager()
 environment = Environment(loader=PackageLoader("pearasys", "templates"))
 template = environment.get_template("pearasys-device@driver.service")
-
-
-def install_service(name: str, content: str):
-    pass
 
 
 def load_service_unit(device: Device, driver: Path) -> Unit:
@@ -77,10 +73,7 @@ def install(
         content = template.render(pearasys_bin=sys.argv[0], conflicts=conflicts)
         with open(unit_file, mode="w", encoding="utf-8") as file:
             file.write(content)
-    os.system(f"systemctl daemon-reload; systemctl cat {new_unit_name}")
+    os.system("systemctl daemon-reload")
     print(
-        f"\nBind driver [green]`{driver}`[/green] with command: [orange1]`systemctl start {new_unit_name}`[/orange1]"
-    )
-    print(
-        f"Unbind device to make available for manual use with command: [orange1]`systemctl stop {new_unit_name}`[/orange1]"
+        f"Service installed successfully. Start service with command: [orange1]`systemctl start {new_unit_name}`[/orange1]"
     )

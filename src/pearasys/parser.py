@@ -1,7 +1,8 @@
 import re
+from typing import Annotated, Callable, Dict, List, Optional
+
 import click
 import typer
-from typing import Annotated, Callable, Dict, List, Optional
 
 from pearasys.utils import get_device
 

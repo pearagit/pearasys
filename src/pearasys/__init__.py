@@ -1,18 +1,25 @@
 from typing import Annotated, List, Optional
 
-from pearasys.parser import DeviceParser
-from pylspci.device import Device
 import typer
+from pylspci.device import Device
 
-from pearasys.state import PearaSysState
-
+from pearasys.parser import DeviceParser
 from pearasys.pci import app as pci_app
 from pearasys.service import app as service_app
+from pearasys.state import PearaSysState
 
-
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer()
 app.add_typer(pci_app, name="pci")
 app.add_typer(service_app, name="service")
+
+
+def recursive_help(cmd, parent=None):
+    ctx = typer.Context(cmd, parent=parent)
+    print(cmd.get_help(ctx))
+    print()
+    commands = getattr(cmd, "commands", {})
+    for sub in commands.values():
+        recursive_help(sub, ctx)
 
 
 @app.callback()
