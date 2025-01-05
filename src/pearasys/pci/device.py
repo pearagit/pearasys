@@ -18,8 +18,8 @@ from pearasys.state import PearaSysState
 from pearasys.utils import device_path, write_attr
 
 app = typer.Typer(
-    short_help="Access resources under /sys/bus/pci/devices/",
-    help="See https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci",
+    short_help="Access resources under `/sys/bus/pci/devices/`",
+    help="See the [sysfs-bus-pci documentation](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci)",
 )
 
 state: PearaSysState = None
@@ -78,7 +78,7 @@ def callback(
     state.validate()
 
 
-@app.command(help="/sys/bus/pci/devices/<device>/driver_override")
+@app.command(help="`/sys/bus/pci/devices/<device>/driver_override`")
 def driver_override():
     global state
     if state.driver is None:
@@ -88,7 +88,7 @@ def driver_override():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/driver/bind",
+    short_help="`/sys/bus/pci/devices/<device>/driver/bind`",
     help="Attempts to bind the specified device(s) to the driver given by the argument. Unbinds the device(s) from it's current driver, if any.",
 )
 def bind():
@@ -102,7 +102,7 @@ def bind():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/driver/unbind",
+    short_help="`/sys/bus/pci/devices/<device>/driver/unbind`",
     help="Unbinds the specified device(s) from it's currently bound driver(s).",
 )
 def unbind():
@@ -117,7 +117,7 @@ def unbind():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/driver/new_id",
+    short_help="`/sys/bus/pci/devices/<device>/driver/new_id`",
     help="Adds the device ID of the specified devices to it's currently bound driver, or the value of --driver if specified.",
 )
 def new_id():
@@ -135,7 +135,7 @@ def new_id():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/driver/remove_id",
+    short_help="`/sys/bus/pci/devices/<device>/driver/remove_id`",
     help="Removes the device ID of the specified devices to it's currently bound driver, or the value of --driver if specified.",
 )
 def remove_id():
@@ -153,7 +153,7 @@ def remove_id():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/remove",
+    short_help="`/sys/bus/pci/devices/<device>/remove`",
     help="Removes device from kernel's list",
 )
 def remove():
@@ -163,7 +163,7 @@ def remove():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/rescan",
+    short_help="`/sys/bus/pci/devices/<device>/rescan`",
     help="Rescans the device's parent/child bus(es).",
 )
 def rescan():
@@ -173,7 +173,7 @@ def rescan():
 
 
 @app.command(
-    short_help="/sys/bus/pci/devices/<device>/reset",
+    short_help="`/sys/bus/pci/devices/<device>/reset`",
     help="Resets the device if a reset function is present.",
 )
 def reset():

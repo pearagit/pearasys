@@ -45,9 +45,10 @@ demo.gif: demo.cast
 
 demo: demo.cast demo.gif
 
-docs:
 USAGE.md:
 	typer pearasys utils docs --name pearasys --title "CLI Reference" --output USAGE.md
+
+docs: USAGE.md
 
 all: docs demo
 

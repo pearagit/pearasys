@@ -1,9 +1,5 @@
-from typing import Annotated, List, Optional
-
 import typer
-from pylspci.device import Device
 
-from pearasys.parser import DeviceParser
 from pearasys.pci.device import app as device_app
 from pearasys.pci.driver import app as driver_app
 from pearasys.state import PearaSysState
@@ -11,7 +7,7 @@ from pearasys.utils import write_attr
 
 app = typer.Typer(
     chain=True,
-    help="Access PCI related resources under /sys/bus/pci",
+    help="Access PCI related resources under `/sys/bus/pci`",
 )
 
 app.add_typer(device_app, name="device")

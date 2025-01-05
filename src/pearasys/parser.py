@@ -1,5 +1,5 @@
 import re
-from typing import Annotated, Callable, Dict, List, Optional
+from typing import Callable, Dict
 
 import click
 import typer

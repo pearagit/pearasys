@@ -12,8 +12,8 @@ from pearasys.state import PearaSysState
 from pearasys.utils import device_id, write_attr
 
 app = typer.Typer(
-    short_help="Access resources under /sys/bus/pci/drivers/",
-    help="See https://www.kernel.org/doc/Documentation/filesystems/sysfs-pci.txt",
+    short_help="Access resources under `/sys/bus/pci/drivers/`",
+    help="See the [sysfs-pci documentation](https://www.kernel.org/doc/Documentation/filesystems/sysfs-pci.txt)",
 )
 
 state: PearaSysState = (None, None, False)
@@ -102,28 +102,28 @@ def callback(
     state.validate()
 
 
-@app.command(help="/sys/bus/pci/drivers/.../bind")
+@app.command(help="`/sys/bus/pci/drivers/.../bind`")
 def bind():
     global state
     for device in state.devices:
         driver_bind(state.driver, device, state.verbose)
 
 
-@app.command(help="/sys/bus/pci/drivers/.../unbind")
+@app.command(help="`/sys/bus/pci/drivers/.../unbind`")
 def unbind():
     global state
     for device in state.devices:
         driver_unbind(state.driver, device, state.verbose)
 
 
-@app.command(help="/sys/bus/pci/drivers/.../new_id")
+@app.command(help="`/sys/bus/pci/drivers/.../new_id`")
 def new_id():
     global state
     for device in state.devices:
         driver_new_id(state.driver, device, state.verbose)
 
 
-@app.command(help="/sys/bus/pci/drivers/.../remove_id")
+@app.command(help="`/sys/bus/pci/drivers/.../remove_id`")
 def remove_id():
     global state
     for device in state.devices:
