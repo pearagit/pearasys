@@ -8,7 +8,8 @@ from jinja2 import Environment, PackageLoader
 from pylspci.device import Device
 from pystemd.systemd1 import Manager as SystemdManager
 from pystemd.systemd1 import Unit
-from rich import print
+from rich import inspect, print
+import shutil
 
 from pearasys.state import PearaSysState
 
@@ -16,16 +17,19 @@ app = typer.Typer(help="pearasys systemd service related commands.")
 
 manager = SystemdManager()
 environment = Environment(loader=PackageLoader("pearasys", "templates"))
-template = environment.get_template("pearasys-device@driver.service")
+
+defaults_tmpl = environment.get_template("10-defaults.conf")
+bin_tmpl = environment.get_template("10-pearasys.conf")
+conflict_tmpl = environment.get_template("conflict.conf")
+inst_tmpl = environment.get_template("instance.service")
 
 
-def load_service_unit(device: Device, driver: Path) -> Unit:
-    unit = Unit(f"pearasys-{str(device.slot)}@{str(driver)}.service")
-    unit.load()
-    return unit
+def get_instance_name(unit_name: str) -> str:
+    _, second = unit_name.split("@")
+    return second.replace(".service", "")
 
 
-def get_device_service_files(device: Device) -> List[Path]:
+def get_device_units(device: Device) -> List[Path]:
     manager.load()
     units = []
     for file, _ in manager.Manager.ListUnitFilesByPatterns(
@@ -39,7 +43,7 @@ def parse_abs_path(value: str) -> Path:
     return Path(value).absolute()
 
 
-@app.command(help="Installs a systemd service to manage a device's driver.")
+@app.command(help="Installs a systemd service to manage a device & driver.")
 def install(
     ctx: typer.Context,
     driver: Annotated[
@@ -52,7 +56,16 @@ def install(
             "--prefix",
             parser=parse_abs_path,
             metavar="path",
-            help="Specify the service installation directory.",
+            help="Directory to install non-instantiated service files.",
+        ),
+    ] = "/usr/local/lib/systemd/system",
+    iprefix: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--iprefix",
+            parser=parse_abs_path,
+            metavar="path",
+            help="Directory to install instantiated service files (i.e. `pearasys-0000:04:00.0@nvidia.service`).",
         ),
     ] = "/etc/systemd/system",
 ):
@@ -63,17 +76,35 @@ def install(
         )
 
     device = state.devices[0]
-    device_unit_files = get_device_service_files(device)
-    new_unit_name = f"pearasys-{str(device.slot)}@{driver}.service"
-    new_unit_file = prefix / new_unit_name
-    if new_unit_file not in device_unit_files:
-        device_unit_files += [new_unit_file]
-    for unit_file in device_unit_files:
-        conflicts = [u.name for u in device_unit_files if u != unit_file]
-        content = template.render(pearasys_bin=sys.argv[0], conflicts=conflicts)
-        with open(unit_file, mode="w", encoding="utf-8") as file:
-            file.write(content)
-    os.system("systemctl daemon-reload")
-    print(
-        f"Service installed successfully. Start service with command: [orange1]`systemctl start {new_unit_name}`[/orange1]"
-    )
+
+    inst_name = f"pearasys-{str(device.slot)}@{driver}.service"
+    dropin_path = prefix / "pearasys-@.service.d"
+    inst_path = iprefix / inst_name
+    defaults_path = dropin_path / defaults_tmpl.name
+
+    dropin_path.mkdir(parents=True, exist_ok=True)
+    inst_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(inst_tmpl.filename, inst_path)
+    shutil.copy(defaults_tmpl.filename, defaults_path)
+
+    bin_path = dropin_path / bin_tmpl.name
+    with open(bin_path, mode="w", encoding="utf-8") as file:
+        file.write(bin_tmpl.render(pearasys_bin=sys.argv[0]))
+
+    device_units = get_device_units(device)
+    # installation is complete if there are no conflicting units
+    if len(device_units) == 0 or (inst_path in device_units and len(device_units) == 1):
+        return
+
+    if inst_path not in device_units:
+        device_units += [inst_path]
+    for unit in device_units:
+        conflicts = [u.name for u in device_units if u != unit]
+        udropin_path = Path(f"{unit}.d")
+        udropin_path.mkdir(parents=True, exist_ok=True)
+        for conflict in conflicts:
+            conflict_path = (
+                udropin_path / f"{get_instance_name(conflict)}_conflict.conf"
+            )
+            with open(conflict_path, mode="w", encoding="utf-8") as file:
+                file.write(conflict_tmpl.render(conflict=conflict))
