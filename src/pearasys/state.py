@@ -16,6 +16,10 @@ class PearaSysState:
     devices: List[Device] = field(default_factory=List)
     driver: Path = None
 
+    def verbose_print(self, *objects):
+        if self.verbose:
+            print(objects)
+
     def validate(self, interactive: bool = True):
         self.devices = (
             self.devices
